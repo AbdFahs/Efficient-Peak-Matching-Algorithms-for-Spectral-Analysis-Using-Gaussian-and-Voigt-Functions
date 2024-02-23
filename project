@@ -6,12 +6,19 @@ from scipy.special import voigt_profile
 
 # Function to generate sharp peaks with varying values
 def generate_varying_peaks(x, num_peaks):
-    peaks = np.random.uniform(0, 17, num_peaks)  # Peak positions
+    peaks = np.random.uniform(0, 20, num_peaks)  # Peak positions
     amplitudes = np.random.uniform(1, 2, num_peaks)  # Random amplitudes
     varying_peaks = np.zeros_like(x)
     for peak_value, amplitude in zip(peaks, amplitudes):
         varying_peaks += amplitude * np.exp(-(x - peak_value)**2 / 0.1)
     return varying_peaks
+
+# function to recreate the spectrum
+def recreate_spectrum(x, x_values_B, y_values_B):
+    recreated_spectrum = np.zeros_like(x)
+    for peak_value, amplitude in zip(x_values_B, y_values_B):
+        recreated_spectrum += amplitude * np.exp(-(x - peak_value)**2 / 0.1)
+    return recreated_spectrum
 
 # Gaussian function for fitting
 def gaussian(x, μ, σ, A):
@@ -26,6 +33,9 @@ def plot_peaks(x, y, ax, color='red', label='Detected Peaks'):
     peaks, _ = find_peaks(y, height=0.5)
     peak_coordinates = list(zip(x[peaks], y[peaks]))
     ax.plot(x[peaks], y[peaks], 'x', color=color, label=label)
+
+    ax.set_xlabel('Wavenumber (m^-1)')
+    ax.set_ylabel('Intensity')
     return peak_coordinates
 
 
@@ -123,7 +133,7 @@ plt.plot(x_data_A, spectrum_A, label='Spectrum A')
 plot_peaks(x_data_A, spectrum_A, plt.gca(), color='red', label='Detected Peaks A')
 plt.plot(x_data_A, gaussian(x_data_A, *popt_gaussian_A), '--', label='Fitted Gaussian Function A')
 plt.plot(x_data_A, voigt(x_data_A, *popt_voigt_A), '--', label='Fitted Voigt Function A')
-plt.xlabel('x')
+plt.xlabel('Wavenumber (m^-1) \n \n')
 plt.ylabel('Intensity')
 plt.legend()
 plt.title('Spectrum A with Detected Peaks A and Fitted Functions')
@@ -134,7 +144,7 @@ plt.plot(x_data_A, spectrum_B, label='Spectrum B (Shift = {:.2f})'.format(random
 plot_peaks(x_data_A, spectrum_B, plt.gca(), color='blue', label='Detected Peaks B')
 plt.plot(x_data_A, gaussian(x_data_A, *popt_gaussian_B), '--', label='Fitted Gaussian Function B')
 plt.plot(x_data_A, voigt(x_data_A, *popt_voigt_B), '--', label='Fitted Voigt Function B')
-plt.xlabel('x')
+plt.xlabel('Wavenumber (m^-1) \n \n')
 plt.ylabel('Intensity')
 plt.legend()
 plt.title('Spectrum B with Detected Peaks B and Fitted Functions')
@@ -151,7 +161,7 @@ plt.plot(x_data_A, gaussian(x_data_A, *popt_gaussian_A), '--', label='Fitted Gau
 # Plot Gaussian function for Spectrum B
 plt.plot(x_data_A, gaussian(x_data_A, *popt_gaussian_B), '--', label='Fitted Gaussian Function B')
 
-plt.xlabel('x')
+plt.xlabel('Wavenumber (m^-1)')
 plt.ylabel('Intensity')
 plt.legend()
 plt.title('Fitted Gaussian Functions for Spectrum A and Spectrum B')
@@ -164,8 +174,8 @@ plt.scatter(x_values_A, y_values_A, label='Detected Peaks A')
 # Plot the discrete peak data for B
 plt.scatter(x_values_B, y_values_B, label='Detected Peaks B', marker='x')
 
-plt.xlabel('X')
-plt.ylabel('Y')
+plt.xlabel('Wavenumber (m^-1)')
+plt.ylabel('Intensity')
 plt.title('Detected Peaks A and B')
 
 # Fit the discrete Voigt function to the peak data for A
@@ -209,8 +219,8 @@ plt.scatter(x_values_A, y_values_A, label='Detected Peaks A')
 # Plot the discrete peak data for B
 plt.scatter(x_values_B, y_values_B, label='Detected Peaks B', marker='x')
 
-plt.xlabel('X')
-plt.ylabel('Y')
+plt.xlabel('Wavenumber (m^-1)')
+plt.ylabel('Intensity')
 plt.title('Detected Peaks A and B')
 
 # Fit the discrete Gaussian function to the peak data for A
@@ -349,7 +359,18 @@ y_values_B = np.array(D_y)
 print("x coordinates of spectrum A peaks :", C)
 print("x coordinates of spectrum B peaks :", D)
 
+recreated_spectrum = recreate_spectrum(x_data_A, x_values_B, y_values_B)
+
+
+
+# Plotting the recreated_spectrum and spectrum_A together with the scatter plot
 plt.figure(figsize=(8, 6))
+
+# Plot recreated_spectrum
+plt.plot(x_data_A, recreated_spectrum, label='New spectrum B', color='green')
+
+# Plot spectrum_A
+plt.plot(x_data_A, spectrum_A, label='Spectrum A', color='orange')
 
 # Plot points formed by x_values_A and y_values_A
 plt.scatter(x_values_A, y_values_A, label='A', color='red')
@@ -357,12 +378,11 @@ plt.scatter(x_values_A, y_values_A, label='A', color='red')
 # Plot points formed by x_values_B and y_values_B
 plt.scatter(x_values_B, y_values_B, label='B', color='blue')
 
-plt.xlabel('X')
-plt.ylabel('Y')
-plt.title('Points A and B using gaussian function')
+plt.xlabel('Wavenumber (m^-1)')
+plt.ylabel('Intensity')
+plt.title('Points A and B and Spectra')
 plt.legend()
 plt.show()
-
 
 # gaussian function approach
 x_values_B = saved_x_values_B
@@ -448,7 +468,20 @@ y_values_B = np.array(D_y)
 print("x coordinates of spectrum A peaks using voigt :", C)
 print("x coordinates of spectrum B peaks using voigt:", D)
 
+
+
+recreated_spectrum = recreate_spectrum(x_data_A, x_values_B, y_values_B)
+
+
+
+# Plotting the recreated_spectrum and spectrum_A together with the scatter plot
 plt.figure(figsize=(8, 6))
+
+# Plot recreated_spectrum
+plt.plot(x_data_A, recreated_spectrum, label='New spectrum B', color='green')
+
+# Plot spectrum_A
+plt.plot(x_data_A, spectrum_A, label='Spectrum A', color='orange')
 
 # Plot points formed by x_values_A and y_values_A
 plt.scatter(x_values_A, y_values_A, label='A', color='red')
@@ -456,9 +489,8 @@ plt.scatter(x_values_A, y_values_A, label='A', color='red')
 # Plot points formed by x_values_B and y_values_B
 plt.scatter(x_values_B, y_values_B, label='B', color='blue')
 
-plt.xlabel('X')
-plt.ylabel('Y')
-plt.title('Points A and B using Voigt function')
+plt.xlabel('Wavenumber (m^-1)')
+plt.ylabel('Intensity')
+plt.title('Points A and B and Spectra')
 plt.legend()
 plt.show()
-
